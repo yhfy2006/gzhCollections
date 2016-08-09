@@ -4,11 +4,18 @@ from bs4 import BeautifulSoup
 import requests
 from gzhPojo import WeixinAccount
 import re
+import json
 
 
 class gzhRengZan:
 
-    #print(sys.getdefaultencoding())
+    ghzSet = set()
+    finalResultList = list()
+    with open("gzhAccoutSet.txt",'r') as f:
+        for line in f:
+            ghzSet.add(line.strip())
+
+
     webSiteUrl = "www.rengzan.com/"
     def crawlRengZan(self):
 
@@ -18,12 +25,19 @@ class gzhRengZan:
         div = soup.find("div",{"class":"introc"})
         h3 = soup.find("h3")
         h3Value = h3.getText()
+        print(h3Value+"\n\n")
         h3CtgMapped = self.ctgMapping(h3Value)
         for link in div.find_all("a",{"target":"_blank"}):
-            str = link.get('href')
-            finalUrl = self.webSiteUrl+str
-            self.crawRengzanPage(finalUrl,h3CtgMapped)
-            print(str)
+            try:
+                str = link.get('href')
+                finalUrl = self.webSiteUrl+str
+                self.crawRengzanPage(finalUrl,h3CtgMapped)
+                print(str)
+            except Exception:
+                continue
+            break
+        with open('results.json', 'w') as f:
+            json.dump(self.finalResultList, f)
 
 
     def crawRengzanPage(self,url,ctg):
@@ -35,17 +49,26 @@ class gzhRengZan:
         pageAStr = pageA.get('href').split("-")[-1]
         pageATotalNumber = pageAStr.replace(".html","")
         for page in range(1,int(pageATotalNumber)):
-            print("page = " + str(page))
-            urlTmp = url.replace(".html","")
-            urlTmp = urlTmp+"-p-"+pageATotalNumber+".html"
-            r1 = requests.get("http://" +urlTmp)
-            soup1 = BeautifulSoup(r1.text)
-            div1 = soup1.find("div",{"class":"resourcese"})
-            for li in div1.find_all("li",{"class":"author-item-li"}):
-                a = li.find("a")
-                href = a.get("href")
-                finalUrl = self.webSiteUrl+href
-                self.crawRengzanGZHDetails(finalUrl,ctg)
+            try:
+                print("page = " + str(page))
+                urlTmp = url.replace(".html","")
+                urlTmp = urlTmp+"-p-"+str(page)+".html"
+                r1 = requests.get("http://" +urlTmp)
+                print("http://" +urlTmp)
+                soup1 = BeautifulSoup(r1.text)
+                div1 = soup1.find("div",{"class":"resourcese"})
+                for li in div1.find_all("li",{"class":"author-item-li"}):
+                    try:
+                        a = li.find("a")
+                        href = a.get("href")
+                        finalUrl = self.webSiteUrl+href
+                        self.crawRengzanGZHDetails(finalUrl,ctg)
+                    except Exception:
+                        continue
+                    break
+            except Exception:
+                continue
+            break
 
     def crawRengzanGZHDetails(self,url,ctg):
         r = requests.get("http://" +url)
@@ -56,15 +79,29 @@ class gzhRengZan:
         weixinAccountLiStr = resultsLis[1].getText().split('\n')[2].strip()
 
         newGzhObj = WeixinAccount()
-        newGzhObj.accountName = weixinNameLiStr
-        newGzhObj.aid = weixinAccountLiStr
-        newGzhObj.category = ctg
+        newGzhObj.accountName = weixinNameLiStr.encode('utf-8')
+        newGzhObj.aid = weixinAccountLiStr.encode('utf-8')
+        newGzhObj.category = ctg.encode('utf-8')
         newGzhObj.url = url
+
+        if(weixinAccountLiStr in self.ghzSet):
+            print(weixinAccountLiStr + u"重复")
+            print("\n")
+            return
+        else:
+            self.ghzSet.add(weixinAccountLiStr)
+            with open("gzhAccoutSet.txt",'a') as ff:
+                ff.write(weixinAccountLiStr+"\n")
+            self.finalResultList.append(newGzhObj.__dict__)
+            print(newGzhObj.__dict__)
 
         print(newGzhObj.accountName)
         print(newGzhObj.aid)
         print(newGzhObj.category)
         print(newGzhObj.url)
+
+
+
 
         print("\n\n")
 
