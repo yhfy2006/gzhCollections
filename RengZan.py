@@ -5,6 +5,7 @@ import requests
 from gzhPojo import WeixinAccount
 import re
 import json
+import time
 
 
 class gzhRengZan:
@@ -36,7 +37,7 @@ class gzhRengZan:
                 h3Value = h3.getText()
                 print(h3Value+"\n\n")
                 h3CtgMapped = self.ctgMapping(h3Value)
-                self.crawRengzanPage(finalUrl,h3CtgMapped)
+                self.crawRengzanPage(finalUrl,h3CtgMapped,h3Value)
                 print(str)
             except Exception,e:
                 print("First level exception" + str(e))
@@ -46,7 +47,7 @@ class gzhRengZan:
         #     json.dump(self.finalResultList, f,ensure_ascii=False,encoding="utf-8")
 
 
-    def crawRengzanPage(self,url,ctg):
+    def crawRengzanPage(self,url,ctg,ctgTag):
         r = requests.get("http://" +url)
         soup = BeautifulSoup(r.text)
         div = soup.find("div",{"class":"resourcese"})
@@ -76,7 +77,7 @@ class gzhRengZan:
                             a = li.find("a")
                             href = a.get("href")
                             finalUrl = self.webSiteUrl+href
-                            self.crawRengzanGZHDetails(finalUrl,ctg)
+                            self.crawRengzanGZHDetails(finalUrl,ctg,ctgTag)
                         except Exception,e:
                             print("Second level exception" + str(e))
                             continue
@@ -87,7 +88,7 @@ class gzhRengZan:
                 continue
             #break
 
-    def crawRengzanGZHDetails(self,url,ctg):
+    def crawRengzanGZHDetails(self,url,ctg,ctgTag):
         r = requests.get("http://" +url)
         soup = BeautifulSoup(r.text)
         div = soup.find("div",{"class":"cont"})
@@ -99,6 +100,7 @@ class gzhRengZan:
         newGzhObj.accountName = weixinNameLiStr.encode("utf-8")
         newGzhObj.aid = weixinAccountLiStr.encode("utf-8")
         newGzhObj.category = ctg#.decode('utf-8').encode('utf-8')
+        newGzhObj.ctgTag = ctgTag.encode("utf-8")
         newGzhObj.url = url
 
         if(weixinAccountLiStr in self.ghzSet):
@@ -117,9 +119,8 @@ class gzhRengZan:
         print(newGzhObj.aid)
         print(newGzhObj.category)
         print(newGzhObj.url)
-        with open("results.txt",'a') as ff:
-            resultStr = newGzhObj.accountName+","+newGzhObj.aid+","+newGzhObj.url.encode("utf-8")+","+newGzhObj.category+","+str(newGzhObj.total_articles)+","+str(newGzhObj.last_week_read)+","+newGzhObj.last_modified_date+"\n"
-            #newGzhObj.category
+        with open("RengzanResult_"+time.strftime("%Y%m%d")+".csv",'a') as ff:
+            resultStr = newGzhObj.accountName+","+newGzhObj.aid+","+newGzhObj.url.encode("utf-8")+","+newGzhObj.category+","+str(newGzhObj.total_articles)+","+str(newGzhObj.last_week_read)+","+newGzhObj.last_modified_date+','+newGzhObj.ctgTag+"\n"
             ff.write(resultStr)
 
         self.totalNumber+=1

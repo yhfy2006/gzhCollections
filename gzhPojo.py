@@ -8,6 +8,7 @@ class WeixinAccount(object):
     last_week_read = 0
     last_modified_date = ''
     category = ''
+    ctgTag = ''
 
     def to_JSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
