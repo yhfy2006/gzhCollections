@@ -6,6 +6,7 @@ import codecs
 from bs4 import BeautifulSoup 
 from gzhPojo import WeixinAccount
 import time
+import os
 
 def crawl_weixin():
 
@@ -24,7 +25,17 @@ def crawl_weixin():
     for div in divs:
         hrefs.append(div.find('a')['href'])
 
-    with codecs.open("weikou_hot_"+time.strftime("%Y%m%d")+".csv","a","utf-8") as weixin_file:
+
+    outPutFileName = "GZHData/Weikou_hot_"+time.strftime("%Y%m%d")+".csv"
+
+    if not os.path.exists(os.path.dirname(outPutFileName)):
+        try:
+            os.makedirs(os.path.dirname(outPutFileName))
+        except OSError as exc: # Guard against race condition
+            if exc.errno != exc.EEXIST:
+             raise
+
+    with codecs.open(outPutFileName,"a","utf-8") as weixin_file:
         for href in hrefs:
             weixin_account_obj = WeixinAccount()
             resp = requests.get(href)

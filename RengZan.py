@@ -6,6 +6,7 @@ from gzhPojo import WeixinAccount
 import re
 import json
 import time
+import os
 
 
 class gzhRengZan:
@@ -119,7 +120,16 @@ class gzhRengZan:
         print(newGzhObj.aid)
         print(newGzhObj.category)
         print(newGzhObj.url)
-        with open("RengzanResult_"+time.strftime("%Y%m%d")+".csv",'a') as ff:
+
+        outPutFileName = "GZHData/RengzanResult_"+time.strftime("%Y%m%d")+".csv"
+        if not os.path.exists(os.path.dirname(outPutFileName)):
+            try:
+                os.makedirs(os.path.dirname(outPutFileName))
+            except OSError as exc: # Guard against race condition
+                if exc.errno != exc.EEXIST:
+                 raise
+
+        with open(outPutFileName ,'a') as ff:
             resultStr = newGzhObj.accountName+","+newGzhObj.aid+","+newGzhObj.url.encode("utf-8")+","+newGzhObj.category+","+str(newGzhObj.total_articles)+","+str(newGzhObj.last_week_read)+","+newGzhObj.last_modified_date+','+newGzhObj.ctgTag+"\n"
             ff.write(resultStr)
 
