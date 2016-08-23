@@ -96,7 +96,7 @@ def getArticleDetails(url):
 	print(weikou_article_obj.to_JSON())
 	b = weikou_article_obj.to_JSON()
 
-	outPutFileName = "GHZArticle/weikou_ranking_article"+time.strftime("%Y%m%d")+".json"
+	outPutFileName = "GHZArticle/weikou_baowen_article"+time.strftime("%Y%m%d")+".json"
 	if not os.path.exists(os.path.dirname(outPutFileName)):
 		try:
 			os.makedirs(os.path.dirname(outPutFileName))
