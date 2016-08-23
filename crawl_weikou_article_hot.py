@@ -111,9 +111,9 @@ def getArticleDetails(url):
 def crawl_weikou(pageNumber):
 
 	articleSet = set()
-	#with open("articleWeikouSet.txt",'r') as f:
-		#for line in f:
-			#articleSet.add(line.strip())
+	with open("TrackingData/articleWeikouSet.txt",'r') as f:
+		for line in f:
+			articleSet.add(line.strip())
 
 	orgianalUrl = "http://www.vccoo.com/hotarticle/?page=%s"
 	for pid in range(1,pageNumber):
@@ -128,7 +128,7 @@ def crawl_weikou(pageNumber):
 			h = div.find('a')['href']
 			if not h in articleSet:
 				getArticleDetails(h)
-				with open("articleWeikouSet.txt",'a') as ff:
+				with open("TrackingData/articleWeikouSet.txt",'a') as ff:
 					ff.write(h+"\n")
 				articleSet.add(h)
 			else:

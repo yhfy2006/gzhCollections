@@ -15,11 +15,11 @@ class gzhRengZan:
     finalResultList = list()
     gzhPageSet = set()
     totalNumber = 0
-    with open("gzhAccoutSet.txt",'r') as f:
+    with open("TrackingData/gzhAccoutSet.txt",'r') as f:
         for line in f:
             ghzSet.add(line.strip())
 
-    with open("gzhPageSet.txt","r") as file:
+    with open("TrackingData/gzhPageSet.txt","r") as file:
         for line in file:
             gzhPageSet.add(line.strip())
 
@@ -66,7 +66,7 @@ class gzhRengZan:
 
                     # add to set and file
                     self.gzhPageSet.add(pageUrl)
-                    with open("gzhPageSet.txt",'a') as ff:
+                    with open("TrackingData/gzhPageSet.txt",'a') as ff:
                         ff.write(pageUrl+"\n")
 
                     r1 = requests.get(pageUrl)
@@ -110,7 +110,7 @@ class gzhRengZan:
             return
         else:
             self.ghzSet.add(weixinAccountLiStr)
-            with open("gzhAccoutSet.txt",'a') as ff:
+            with open("TrackingData/gzhAccoutSet.txt",'a') as ff:
                 ff.write(weixinAccountLiStr+"\n")
             self.finalResultList.append(newGzhObj.__dict__)
 

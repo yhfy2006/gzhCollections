@@ -11,7 +11,7 @@ import os
 def crawl_weixin():
 
     ghzSet = set()
-    with open("gzhWeikouAccoutSet.txt",'r') as f:
+    with open("TrackingData/gzhWeikouAccoutSet.txt",'r') as f:
         for line in f:
             ghzSet.add(line.strip())
 
@@ -67,7 +67,7 @@ def crawl_weixin():
 
                 ghzSet.add(account_id)
                 try:
-                    with open("gzhWeikouAccoutSet.txt",'a') as ff:
+                    with open("TrackingData/gzhWeikouAccoutSet.txt",'a') as ff:
                         ff.write(account_id+"\n")
                 except Exception,e:
                     continue
