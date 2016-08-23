@@ -121,7 +121,7 @@ class gzhRengZan:
         print(newGzhObj.category)
         print(newGzhObj.url)
 
-        outPutFileName = "GZHData/RengzanResult_"+time.strftime("%Y%m%d")+".csv"
+        outPutFileName = "GZHData/gzh_Rengzan_"+time.strftime("%Y%m%d")+".csv"
         if not os.path.exists(os.path.dirname(outPutFileName)):
             try:
                 os.makedirs(os.path.dirname(outPutFileName))

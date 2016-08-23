@@ -26,7 +26,7 @@ def crawl_weixin():
         hrefs.append(div.find('a')['href'])
 
 
-    outPutFileName = "GZHData/Weikou_hot_"+time.strftime("%Y%m%d")+".csv"
+    outPutFileName = "GZHData/gzh_Weikou_hot_"+time.strftime("%Y%m%d")+".csv"
 
     if not os.path.exists(os.path.dirname(outPutFileName)):
         try:
