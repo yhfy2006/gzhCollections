@@ -3,10 +3,14 @@ import json
 class WeikouArticle(object):
     title = ''
     author_link = ''
-    author_name = ''
+    gzh_name = ''
+    gzh_account = ''
+    gzhCategory = ''
     # author_id = ''
     image_url = ''
     content = ''
+    intro = ''
+    articleDate = ''
 
     
     def to_JSON(self):
@@ -15,3 +19,4 @@ class WeikouArticle(object):
     def to_DICT(self):
         return json.loads(self, default=lambda o: o.__dict__,
             sort_keys=True, indent=4)
+
