@@ -96,7 +96,7 @@ def getArticleDetails(url):
 	print(weikou_article_obj.to_JSON())
 	b = weikou_article_obj.to_JSON()
 
-	outPutFileName = "GHZArticle/article_weikou_baowen"+time.strftime("%Y%m%d")+".json"
+	outPutFileName = "GHZArticle/article_weikou_baowen_"+time.strftime("%Y%m%d")+".json"
 	if not os.path.exists(os.path.dirname(outPutFileName)):
 		try:
 			os.makedirs(os.path.dirname(outPutFileName))
@@ -119,7 +119,7 @@ def crawl_weikou(pageNumber):
 	for pid in range(1,pageNumber):
 		print("Procesing page " + str(pid))
 		url = orgianalUrl % str(pid)
-		response = requests.get(url,timeout=10)
+		response = requests.get(url,timeout=15)
 		if not response.status_code == 200:
 			continue
 		soup = BeautifulSoup(response.text)
