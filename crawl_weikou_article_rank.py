@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from weikou_article import WeikouArticle
 import time
 import os
+import random
 
 def read_books():
     with open("weikou_article.json","r") as account: 
@@ -119,6 +120,7 @@ def crawl_weikou(numPage):
 		for line in f:
 			articleSet.add(line.strip())
 
+	random.shuffle(id_list)
 	orgianalUrl = "http://www.vccoo.com/cateboard/?id=%s&page=%s"
 	for (aid, page) in id_list:
 		for pid in range(0, page):
