@@ -16,6 +16,8 @@ __author__ = 'pgaref'
 
 class RequestProxy:
 
+    currentWorkingProxy = None
+
     def __init__(self, web_proxy_list=[]):
         self.userAgent = UserAgentManager()
 
@@ -59,21 +61,32 @@ class RequestProxy:
 
         request = None
         try:
-            rand_proxy = random.choice(self.proxy_list)
+            rand_proxy = None
+            if not self.currentWorkingProxy == None:
+                rand_proxy = self.currentWorkingProxy
+            else:
+                rand_proxy = random.choice(self.proxy_list)
+                self.currentWorkingProxy = rand_proxy
+
             print "Using proxy: {0}".format(str(rand_proxy))
             request = requests.get(url, proxies={"http": rand_proxy},
                                    headers=req_headers, timeout=req_timeout)
         except ConnectionError:
             self.proxy_list.remove(rand_proxy)
             print "Proxy unreachable - Removed Straggling proxy: {0} PL Size = {1}".format(rand_proxy, len(self.proxy_list))
+            self.currentWorkingProxy = None
             pass
         except ReadTimeout:
             self.proxy_list.remove(rand_proxy)
             print "Read timed out - Removed Straggling proxy: {0} PL Size = {1}".format(rand_proxy, len(self.proxy_list))
+            self.currentWorkingProxy = None
             pass
+        except KeyboardInterrupt:
+            raise
         except:
             print "Unexpected error:", sys.exc_info()[0]
-            raise
+            self.currentWorkingProxy = None
+            pass
 
         return request
 
