@@ -8,6 +8,9 @@ from weikou_article import WeikouArticle
 import time
 import os
 import random
+from project.http.requests.proxy.requestProxy import RequestProxy
+
+req_proxy = RequestProxy()
 
 def read_books():
     with open("weikou_article.json","r") as account: 
@@ -17,8 +20,8 @@ def read_books():
 
 def getMoreGzhAncCategoryInfo(weikou_article_obj):
 	url = weikou_article_obj.author_link
-	resp = requests.get(url,timeout=15)
-	if not resp.status_code == 200:
+	resp = req_proxy.generate_proxied_request(url)
+	if response == None or not response.status_code == 200:
 		return
 	page_soup = BeautifulSoup(resp.text)
 	ctgDiv = page_soup.find("div",{"class":"crumbs"})
@@ -31,8 +34,8 @@ def getMoreGzhAncCategoryInfo(weikou_article_obj):
 def getArticleDetails(url):
 	print(url)
 	weikou_article_obj = WeikouArticle()
-	resp = requests.get(url,timeout=15)
-	if not resp.status_code == 200:
+	resp = req_proxy.generate_proxied_request(url)
+	if response == None or not response.status_code == 200:
 		return
 
 	page_soup = BeautifulSoup(resp.text)
@@ -126,8 +129,9 @@ def crawl_weikou(numPage):
 		for pid in range(0, page):
 			print("Procesing category : ", str(aid), " page : ", str(pid))
 			url = orgianalUrl % (str(aid),str(pid))
-			response = requests.get(url,timeout=15)
-			if not response.status_code == 200:
+			#response = requests.get(url,timeout=15)
+			response = req_proxy.generate_proxied_request(url)
+			if response == None or not response.status_code == 200:
 				continue
 			soup = BeautifulSoup(response.text)
 			divs = soup.findAll("div", {"class":"classify-list-con"})
@@ -150,5 +154,22 @@ if __name__ == "__main__":
 	
 	crawl_weikou(25)
 	#read_books()
+	# start = time.time()
+	# req_proxy = RequestProxy()
+	# print "Initialisation took: ", (time.time()-start)
+	# print "Size : ", len(req_proxy.get_proxy_list())
+	# print " ALL = ", req_proxy.get_proxy_list()
+    #
+    #
+	# while 1:
+	# 	print "here"
+	# 	start = time.time()
+	# 	urlUrl = 'http://google.com'
+	# 	request = req_proxy.generate_proxied_request(urlUrl)
+	# 	print "Proxied Request Took: ", (time.time()-start), " => Status: ", request.__str__()
+	# 	print "Proxy List Size: ", len(req_proxy.get_proxy_list())
+    #
+	# 	print"-> Going to sleep.."
+	# 	time.sleep(2)
 
 

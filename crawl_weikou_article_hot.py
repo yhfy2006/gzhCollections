@@ -7,6 +7,9 @@ from bs4 import BeautifulSoup
 from weikou_article import WeikouArticle
 import time
 import os
+from project.http.requests.proxy.requestProxy import RequestProxy
+
+req_proxy = RequestProxy()
 
 
 def read_books():
@@ -17,8 +20,8 @@ def read_books():
 
 def getMoreGzhAncCategoryInfo(weikou_article_obj):
 	url = weikou_article_obj.author_link
-	resp = requests.get(url)
-	if not resp.status_code == 200:
+	resp = req_proxy.generate_proxied_request(url)
+	if resp == None or not resp.status_code == 200:
 		return
 	page_soup = BeautifulSoup(resp.text)
 	ctgDiv = page_soup.find("div",{"class":"crumbs"})
@@ -31,8 +34,8 @@ def getMoreGzhAncCategoryInfo(weikou_article_obj):
 def getArticleDetails(url):
 	print(url)
 	weikou_article_obj = WeikouArticle()
-	resp = requests.get(url)
-	if not resp.status_code == 200:
+	resp = req_proxy.generate_proxied_request(url)
+	if resp == None or not resp.status_code == 200:
 		return
 
 	page_soup = BeautifulSoup(resp.text)
@@ -119,8 +122,8 @@ def crawl_weikou(pageNumber):
 	for pid in range(1,pageNumber):
 		print("Procesing page " + str(pid))
 		url = orgianalUrl % str(pid)
-		response = requests.get(url,timeout=15)
-		if not response.status_code == 200:
+		response = req_proxy.generate_proxied_request(url)
+		if response == None or not response.status_code == 200:
 			continue
 		soup = BeautifulSoup(response.text)
 		divs = soup.findAll("div", {"class":"classify-list-con"})
