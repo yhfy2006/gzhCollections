@@ -72,7 +72,9 @@ class RequestProxy:
             print "Read timed out - Removed Straggling proxy: {0} PL Size = {1}".format(rand_proxy, len(self.proxy_list))
             pass
         except:
-            pass
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
+
         return request
 
 if __name__ == '__main__':
