@@ -86,7 +86,7 @@ class RequestProxy:
         except:
             print "Unexpected error:", sys.exc_info()[0]
             self.currentWorkingProxy = None
-            pass
+            raise
 
         return request
 
