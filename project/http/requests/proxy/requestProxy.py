@@ -10,7 +10,9 @@ import requests
 from requests.exceptions import ConnectionError
 import random
 import time
+import codecs
 from requests.exceptions import ReadTimeout
+import traceback
 
 __author__ = 'pgaref'
 
@@ -85,6 +87,18 @@ class RequestProxy:
             raise
         except:
             print "Unexpected error:", sys.exc_info()[0]
+            outPutFileName = "ErrorLogs/netWorkLog.log"
+            if not os.path.exists(os.path.dirname(outPutFileName)):
+                try:
+                    os.makedirs(os.path.dirname(outPutFileName))
+                except OSError as exc:
+                    if exc.errno != exc.EEXIST:
+                        raise
+
+            with codecs.open(outPutFileName,"a","utf-8") as errorLogFile:
+                format = '%Y-%m-%d %H:%M:%S'
+                errorLogFile.write("Unexpected error:("+time.strftime(format)+")" + str(traceback.format_exc())+"\n\n")
+
             self.currentWorkingProxy = None
             raise
 
