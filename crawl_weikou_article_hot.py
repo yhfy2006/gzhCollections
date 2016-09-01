@@ -142,7 +142,7 @@ def crawl_weikou(pageNumber):
 
 if __name__ == "__main__":
 	
-	crawl_weikou(100)
+	crawl_weikou(20)
 	#read_books()
 
 

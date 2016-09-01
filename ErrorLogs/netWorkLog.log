@@ -1,0 +1,18 @@
+Unexpected error:(2016-08-31 18:11:05)Traceback (most recent call last):
+  File "/home/hecame/onebook/dataFetching/gzhCollections/project/http/requests/proxy/requestProxy.py", line 75, in generate_proxied_request
+    headers=req_headers, timeout=req_timeout)
+  File "/usr/local/lib/python2.7/dist-packages/requests/api.py", line 70, in get
+    return request('get', url, params=params, **kwargs)
+  File "/usr/local/lib/python2.7/dist-packages/requests/api.py", line 56, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/usr/local/lib/python2.7/dist-packages/requests/sessions.py", line 475, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/local/lib/python2.7/dist-packages/requests/sessions.py", line 628, in send
+    r.content
+  File "/usr/local/lib/python2.7/dist-packages/requests/models.py", line 755, in content
+    self._content = bytes().join(self.iter_content(CONTENT_CHUNK_SIZE)) or bytes()
+  File "/usr/local/lib/python2.7/dist-packages/requests/models.py", line 679, in generate
+    raise ChunkedEncodingError(e)
+ChunkedEncodingError: ("Connection broken: error(104, 'Connection reset by peer')", error(104, 'Connection reset by peer'))
+
+
