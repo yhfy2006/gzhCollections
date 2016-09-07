@@ -73,6 +73,11 @@ class RequestProxy:
             print "Using proxy: {0}".format(str(rand_proxy))
             request = requests.get(url, proxies={"http": rand_proxy},
                                    headers=req_headers, timeout=req_timeout)
+
+            if not request.status_code == 200:
+                print "Proxy request status code:" + str(request.status_code)
+                self.currentWorkingProxy = None
+
         except ConnectionError:
             self.proxy_list.remove(rand_proxy)
             print "Proxy unreachable - Removed Straggling proxy: {0} PL Size = {1}".format(rand_proxy, len(self.proxy_list))

@@ -49,7 +49,9 @@ def getArticleDetails(url):
 	image_url = ""
 
 	try:
-		image_url = article_page_div.find('img',{"data-type" : "jpeg"})["data-echo"].split("url=")[1].split('?')[0]
+		imageDivArray = article_page_div.findAll(lambda tag: tag.name == 'img' and 'data-echo' in tag.attrs)
+		if len(imageDivArray) > 0:
+			image_url = imageDivArray[0]["data-echo"].split("url=")[1].split('?')[0]
 	except Exception,e:
 		print("image grabing error:"+url)
 		return
@@ -77,10 +79,10 @@ def getArticleDetails(url):
 	hasSetIntro = False
 	try:
 		for p in article_content.findAll('p'):
-			if p.find('img'):
+			if p.find(lambda tag: tag.name == 'img' and 'data-echo' in tag.attrs):
 				# print("found img!")
-				media_type = p.find('img')["data-type"]
-				media_src = p.find('img',{"data-type" : media_type})["data-echo"].split("url=")[1].split('?')[0]
+				media_type = p.find('img')["data-echo"].split("wx_fmt=")[1]
+				media_src = p.find('img')["data-echo"].split("url=")[1].split('?')[0]
 				media_line = image_tag % (media_type,media_src)
 				print(media_line)
 				content += '\n' + media_line
