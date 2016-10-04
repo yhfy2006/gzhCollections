@@ -127,8 +127,13 @@ def crawl_weikou():
 	                                
 
 if __name__ == "__main__":
+    with open("TrackingData/famousAccount.text") as accounts:
+		content = accounts.readlines()
+		for href in content:
+			crawl_weikou_by_article_href(href)
+
 	#crawl_weikou_by_artical_href("")
-	crawl_weikou()
+	#crawl_weikou()
 	#read_books()
 
 
