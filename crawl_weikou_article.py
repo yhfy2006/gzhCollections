@@ -14,6 +14,7 @@ def read_books():
          
 def crawl_weikou_by_userpage(user_home_page):
 	hrefs = []
+	user_home_page = user_home_page.strip()
 	resp = requests.get(user_home_page)
 	soup = BeautifulSoup(resp.text)
 	pages = soup.find("div", {"class":"pages"})
