@@ -195,7 +195,7 @@ if __name__ == "__main__":
 
 	with open("TrackingData/famousAccount.txt") as accounts:
 		originalContent = accounts.readlines()
-		content = set(originalContent)
+		content = random.sample(originalContent, len(originalContent))
 		for user_home_page in content:
 			hrefs = crawl_weikou_by_userpage(user_home_page)
 			if hrefs == None:
