@@ -89,8 +89,6 @@ def crawl_weikou_by_article_href(href):
 				#print(media_line)
 				content += '\n' + media_line
 			else:
-				if not 'data-echo' in tag:
-					continue
 				media_src = tag["data-echo"].split("url=")[1]
 				media_type = "jpeg" if not "?wx_fmt" in media_src else media_src.split("wx_fmt=")[1]
 				media_line = image_tag % (media_type,media_src)
