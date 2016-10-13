@@ -3,35 +3,57 @@
 
 import requests,json,string
 import codecs
-from bs4 import BeautifulSoup 
+from bs4 import BeautifulSoup
+import time
+import os
 from weikou_article import WeikouArticle
+from project.http.requests.proxy.requestProxy import RequestProxy
+import random
+
+
+
+req_proxy = RequestProxy()
+req_proxy.useProxy = False
+
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+outPutFileName = "GZHLabeledData/weikou_labeled_article_"+time.strftime("%Y%m%d")+".json"
 
 def read_books():
-    with open("weikou_article.json","r") as account: 
+    with open("GZHLabeledData/weikou_article.json","r") as account:
         content = account.readlines()
         for line_number,line in enumerate(content):
         	print(json.loads(line))
          
-def crawl_weikou_by_userpage(user_home_page):
-	hrefs = []
-	user_home_page = user_home_page.strip()
-	resp = requests.get(user_home_page)
+def crawl_weikou_by_userpage(contentString):
+	hrefsTuples = []
+	contentStringS = contentString.strip().split(',')
+	user_home_page = contentStringS[0]
+	resp = req_proxy.generate_proxied_request(user_home_page)
+	if resp == None or not resp.status_code == 200:
+		return
 	soup = BeautifulSoup(resp.text)
 	pages = soup.find("div", {"class":"pages"})
 	number_of_pages =  len(pages.findAll("li")) - 2
 	for i in range(1, number_of_pages + 1):
 		url = user_home_page + "?page=" + str(i)
-		response = requests.get(url)
+		response = req_proxy.generate_proxied_request(url)
+		if response == None or not resp.status_code == 200:
+			continue
 		soup = BeautifulSoup(response.text)
 		divs = soup.findAll("div", {"class":"classify-list-con"})
 		for div in divs:
-			hrefs.append(div.find('a')['href'])
-	return hrefs
+			hrefsTuples.append((div.find('a')['href'],contentStringS[1],contentStringS[2]))
+	return hrefsTuples
 
 def crawl_weikou_by_article_href(href):
 	articles = []
 	weikou_article_obj = WeikouArticle()
-	resp = requests.get(href)
+	resp = req_proxy.generate_proxied_request(href[0])
+	if resp == None or not resp.status_code == 200:
+		return
 	page_soup = BeautifulSoup(resp.text)
 	article_page_div = page_soup.find("div", {"class":"article-container"})
 
@@ -47,6 +69,8 @@ def crawl_weikou_by_article_href(href):
 	weikou_article_obj.author_link = author_link
 	weikou_article_obj.author_name = author_name
 	weikou_article_obj.image_url = image_url
+	weikou_article_obj.gzhCategory = str(href[1])
+	weikou_article_obj.articleTopic = str(href[2])
 
 	print(title)
 	article_content = article_page_div.find("div",{"class" : "article-content"})
@@ -80,7 +104,14 @@ def crawl_weikou_by_article_href(href):
 	b = weikou_article_obj.to_JSON()
 	articles.append(b)
 
-	with codecs.open("weikou_article.json","a","utf-8") as weikou_article_file:
+
+	if not os.path.exists(os.path.dirname(outPutFileName)):
+		try:
+			os.makedirs(os.path.dirname(outPutFileName))
+		except OSError as exc: # Guard against race condition
+			if exc.errno != exc.EEXIST:
+			 raise
+	with codecs.open(outPutFileName,"a","utf-8") as weikou_article_file:
 		for article in articles:
 		# 	weikou_article_file.write(article)
 		    json.dump(article, weikou_article_file, ensure_ascii=False)
@@ -105,7 +136,9 @@ def crawl_weikou():
 	articles = []
 	for h in hrefs:
 		weikou_article_obj = WeikouArticle()
-		resp = requests.get(href)
+		resp = req_proxy.generate_proxied_request(href)
+		if resp == None or not resp.status_code == 200:
+			continue
 		page_soup = BeautifulSoup(resp.text)
 		article_page_div = page_soup.find("div", {"class":"article-container"})
 
@@ -144,7 +177,7 @@ def crawl_weikou():
 		b = weikou_article_obj.to_JSON()
 		articles.append(b)
 
-	with codecs.open("weikou_article.json","a","utf-8") as weikou_article_file:
+	with codecs.open("GZHLabeledData/weikou_article.json","a","utf-8") as weikou_article_file:
 		for article in articles:
 		# 	weikou_article_file.write(article)
 		    json.dump(article, weikou_article_file, ensure_ascii=False)
@@ -155,12 +188,27 @@ if __name__ == "__main__":
 	
 	#crawl_weikou_by_article_href("http://www.vccoo.com/v/990b8a")
 	#crawl_weikou_by_article_href("http://www.vccoo.com/v/bdf6e8")
-    with open("TrackingData/famousAccount.text") as accounts:
-		content = accounts.readlines()
+	articleSet = set()
+	with open("TrackingData/articleLabeledWeikouSet.txt", 'r') as f:
+		for line in f:
+			articleSet.add(line.strip())
+
+	with open("TrackingData/famousAccount.txt") as accounts:
+		originalContent = accounts.readlines()
+		content = set(originalContent)
 		for user_home_page in content:
 			hrefs = crawl_weikou_by_userpage(user_home_page)
-			for href in hrefs:
-				crawl_weikou_by_article_href(href)
+			if hrefs == None:
+				continue
+			for hrefTuple in hrefs:
+				if not hrefTuple[0] in articleSet:
+					crawl_weikou_by_article_href(hrefTuple)
+					with open("TrackingData/articleLabeledWeikouSet.txt",'a') as ff:
+						ff.write(hrefTuple[0]+"\n")
+					articleSet.add(hrefTuple[0])
+				else:
+					print("exsist-> " + hrefTuple[0])
+					pass
 
 	#crawl_weikou()
 	#read_books()

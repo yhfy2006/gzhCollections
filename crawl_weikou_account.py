@@ -13,17 +13,18 @@ def crawl_weikou_account():
 		content = accounts.readlines()
 		for line_number,account in enumerate(content):
 			print(account.strip())
-			url = url_template.format(account = account.strip())
+			accountlineArray = account.strip().split(",")
+			url = url_template.format(account = accountlineArray[0])
 			print(url)
 			response = requests.get(url)
 			soup = BeautifulSoup(response.text)
 			divs = soup.findAll("div", {"class":"classify-list-con"})
 			for div in divs:
-				hrefs.append(div.find('a')['href'])
+				hrefs.append(div.find('a')['href'].encode()+","+str(accountlineArray[1])+","+str(accountlineArray[2]))
 
 	for h in hrefs:
 		print(h)
-		with open("TrackingData/famousAccount.text", 'a') as ff:
+		with open("TrackingData/famousAccount.txt", 'a') as ff:
 			ff.write(h+"\n")
 
 if __name__ == "__main__":

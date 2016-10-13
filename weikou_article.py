@@ -6,6 +6,7 @@ class WeikouArticle(object):
     gzh_name = ''
     gzh_account = ''
     gzhCategory = ''
+    articleTopic= ''
     # author_id = ''
     image_url = ''
     content = ''

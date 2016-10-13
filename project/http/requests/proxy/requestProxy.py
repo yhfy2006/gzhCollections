@@ -19,6 +19,7 @@ __author__ = 'pgaref'
 class RequestProxy:
 
     currentWorkingProxy = None
+    useProxy = True
 
     def __init__(self, web_proxy_list=[]):
         self.userAgent = UserAgentManager()
@@ -64,15 +65,20 @@ class RequestProxy:
         request = None
         try:
             rand_proxy = None
-            if not self.currentWorkingProxy == None:
-                rand_proxy = self.currentWorkingProxy
-            else:
-                rand_proxy = random.choice(self.proxy_list)
-                self.currentWorkingProxy = rand_proxy
 
-            print "Using proxy: {0}".format(str(rand_proxy))
-            request = requests.get(url, proxies={"http": rand_proxy},
+            if self.useProxy:
+                if not self.currentWorkingProxy == None:
+                    rand_proxy = self.currentWorkingProxy
+                else:
+                    rand_proxy = random.choice(self.proxy_list)
+                    self.currentWorkingProxy = rand_proxy
+
+                print "Using proxy: {0}".format(str(rand_proxy))
+                request = requests.get(url, proxies={"http": rand_proxy},
                                    headers=req_headers, timeout=req_timeout)
+            else:
+                print "Not Using proxy"
+                request = requests.get(url,headers=req_headers, timeout=req_timeout)
 
             if not request.status_code == 200:
                 print "Proxy request status code:" + str(request.status_code)
