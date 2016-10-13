@@ -78,26 +78,25 @@ def crawl_weikou_by_article_href(href):
 
 	image_tag = """<media>{"type":"%s","url","%s"}</media>"""
     
-	tags = main_article.findAll(True)
-	for tag in tags:
-		if tag.name == 'img':
-			#print("found img!")
-			if "data-type" in tag:
-				media_type = tag["data-type"]
-				media_src = tag["data-echo"].split("url=")[1].split('?')[0]
+	hasSetIntro = False
+	try:
+		for p in article_content.findAll('p'):
+			if p.find(lambda tag: tag.name == 'img' and 'data-echo' in tag.attrs):
+				# print("found img!")
+				media_type = p.find('img')["data-echo"].split("wx_fmt=")[1]
+				media_src = p.find('img')["data-echo"].split("url=")[1].split('?')[0]
 				media_line = image_tag % (media_type,media_src)
-				#print(media_line)
+				print(media_line)
 				content += '\n' + media_line
 			else:
-				media_src = tag["data-echo"].split("url=")[1]
-				media_type = "jpeg" if not "?wx_fmt" in media_src else media_src.split("wx_fmt=")[1]
-				media_line = image_tag % (media_type,media_src)
-				#print(media_line)
-				content += '\n' + media_line
-		if tag.name == 'p':
-			#print("no img found")
-			content += '\n' + tag.text
-			
+				content += '\n' + p.text
+				if not hasSetIntro:
+					weikou_article_obj.intro = p.text
+					hasSetIntro = True
+	except:
+		print("image parsing error:"+url)
+		return
+
 	weikou_article_obj.content = content
 
 	print(weikou_article_obj.to_JSON())
