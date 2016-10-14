@@ -94,7 +94,7 @@ def crawl_weikou_by_article_href(href):
 					weikou_article_obj.intro = p.text
 					hasSetIntro = True
 	except:
-		print("image parsing error:"+url)
+		print("image parsing error:"+href[0])
 		return
 
 	weikou_article_obj.content = content
