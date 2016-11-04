@@ -31,7 +31,7 @@ class RequestProxy:
         parsers.append(freeproxyParser('http://free-proxy-list.net'))
         parsers.append(proxyforeuParser('http://proxyfor.eu/geo.php', 100.0))
         parsers.append(rebroweeblyParser('http://rebro.weebly.com/proxy-list.html'))
-        parsers.append(semairproxyParser('http://www.samair.ru/proxy/time-01.htm'))
+        #parsers.append(semairproxyParser('http://www.samair.ru/proxy/time-01.htm'))
 
         print "=== Initialized Proxy Parsers ==="
         for i in range(len(parsers)):

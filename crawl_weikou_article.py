@@ -9,7 +9,7 @@ import os
 from weikou_article import WeikouArticle
 from project.http.requests.proxy.requestProxy import RequestProxy
 import random
-
+from common import getWeikouArticleObj
 
 
 req_proxy = RequestProxy()
@@ -35,7 +35,7 @@ def crawl_weikou_by_userpage(contentString):
 	if resp == None or not resp.status_code == 200:
 		return
 	soup = BeautifulSoup(resp.text)
-	pages = soup.find("div", {"class":"pages"})
+	pages = soup.find("div", {"class":"mainAuthor-page"})
 	number_of_pages =  len(pages.findAll("li")) - 2
 	for i in range(1, number_of_pages + 1):
 		url = user_home_page + "?page=" + str(i)
@@ -43,62 +43,16 @@ def crawl_weikou_by_userpage(contentString):
 		if response == None or not resp.status_code == 200:
 			continue
 		soup = BeautifulSoup(response.text)
-		divs = soup.findAll("div", {"class":"classify-list-con"})
+		divs = soup.findAll("div", {"class":"articlesItem"})
 		for div in divs:
 			hrefsTuples.append((div.find('a')['href'],contentStringS[1],contentStringS[2]))
 	return hrefsTuples
 
 def crawl_weikou_by_article_href(href):
 	articles = []
-	weikou_article_obj = WeikouArticle()
-	resp = req_proxy.generate_proxied_request(href[0])
-	if resp == None or not resp.status_code == 200:
-		return
-	page_soup = BeautifulSoup(resp.text)
-	article_page_div = page_soup.find("div", {"class":"article-container"})
-
-	title = article_page_div.find('h1').text.strip()
-	author_div = article_page_div.find("div", {"class":"author-name"})
-	author_link = author_div.find('a')['href']
-	author_name = author_div.find('a').text.strip()
-	main_article =  page_soup.find("div", {"class":"article-content"})
-	image_urls = main_article.findAll('img')
-	image_url = image_urls[0]["data-echo"].split("url=")[1]
-	
-	weikou_article_obj.title = title
-	weikou_article_obj.author_link = author_link
-	weikou_article_obj.author_name = author_name
-	weikou_article_obj.image_url = image_url
+	weikou_article_obj = getWeikouArticleObj(href[0],req_proxy)
 	weikou_article_obj.gzhCategory = str(href[1])
 	weikou_article_obj.articleTopic = str(href[2])
-
-	print(title)
-	article_content = article_page_div.find("div",{"class" : "article-content"})
-	content = ""
-
-	image_tag = """<media>{"type":"%s","url","%s"}</media>"""
-    
-	hasSetIntro = False
-	try:
-		for p in article_content.findAll('p'):
-			if p.find(lambda tag: tag.name == 'img' and 'data-echo' in tag.attrs):
-				# print("found img!")
-				media_type = p.find('img')["data-echo"].split("wx_fmt=")[1]
-				media_src = p.find('img')["data-echo"].split("url=")[1].split('?')[0]
-				media_line = image_tag % (media_type,media_src)
-				print(media_line)
-				content += '\n' + media_line
-			else:
-				content += '\n' + p.text
-				if not hasSetIntro:
-					weikou_article_obj.intro = p.text
-					hasSetIntro = True
-	except:
-		print("image parsing error:"+url)
-		return
-
-	weikou_article_obj.content = content
-
 	print(weikou_article_obj.to_JSON())
 	b = weikou_article_obj.to_JSON()
 	articles.append(b)
