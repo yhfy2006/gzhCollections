@@ -51,6 +51,9 @@ def crawl_weikou_by_userpage(contentString):
 def crawl_weikou_by_article_href(href):
 	articles = []
 	weikou_article_obj = getWeikouArticleObj(href[0],req_proxy)
+	if weikou_article_obj is None:
+		return
+	
 	if str(href[1]) is not None:
 		weikou_article_obj.gzhCategory = str(href[1])
 	if str(href[2]) is not None:
