@@ -18,12 +18,14 @@ def getWeikouArticleObj(href,req_proxy):
     author_name = author_div.find('a',{"class":"art-cont-name fl"}).text.strip()
     main_article =  page_soup.find("div", {"class":"article-cont"})
     image_urls = main_article.findAll('img')
-    image_url = image_urls[0]["data-echo"].split("url=")[1]
+    if len(image_urls):
+       image_url = image_urls[0]["data-echo"].split("url=")[1]
+       weikou_article_obj.image_url = image_url
+
 
     weikou_article_obj.title = title
     weikou_article_obj.author_link = author_link
     weikou_article_obj.author_name = author_name
-    weikou_article_obj.image_url = image_url
 
     print(title)
     article_content = article_page_div.find("div",{"class" : "article-cont"})
